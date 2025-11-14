@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { Pool } = require('pg');
 
-const SECRET = process.env.JWT_SECRET || 'troque-essa-chave';
+const SECRET = process.env.JWT_SECRET || 'c8f3d7b2c0a948cfa2e4eab7f1e6a92e1d4f3c7a99b24e8f5c1e76a3d2f9b8c1';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
