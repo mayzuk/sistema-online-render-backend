@@ -204,6 +204,44 @@ app.post("/api/login", async (req, res) => {
   });
 });
 
+// POST /api/auth/register
+router.post('/register', async (req, res) => {
+  const { name, email, password } = req.body;
+
+  const user = await User.create({
+    name,
+    email,
+    password: await hashPassword(password),
+    is_verified: false,
+    verify_token: crypto.randomBytes(32).toString('hex')
+  });
+
+  const verifyURL = `https://seusite.com/confirm?token=${user.verify_token}`;
+
+  await sendEmail({
+    to: user.email,
+    subject: "Confirme sua conta",
+    html: `<p>Confirme seu cadastro clicando aqui:</p>
+           <a href="${verifyURL}">${verifyURL}</a>`
+  });
+
+  res.json({ message: "Cadastro criado! Verifique seu e-mail." });
+});
+
+// GET /api/auth/confirm
+router.get('/confirm', async (req, res) => {
+  const { token } = req.query;
+
+  const user = await User.findOne({ verify_token: token });
+  if (!user) return res.status(400).json({ error: "Token inválido" });
+
+  user.is_verified = true;
+  user.verify_token = null;
+  await user.save();
+
+  res.json({ message: "Conta confirmada com sucesso!" });
+});
+
 // =============================================
 // ========= ROTAS ADMINISTRATIVAS ==============
 // =============================================
